@@ -1,0 +1,15 @@
+{
+  "language": "python",
+  "app": "pipenv run python -m src.main",
+  "projectId": "d8b44edd-01da-4e1a-9515-acf0cd329f58",
+  "sendCrashReports": "false",
+  "terraformProviders": [
+    "hashicorp/aws@4.16"
+  ],
+  "terraformModules": [],
+  "codeMakerOutput": "imports",
+  "context": {
+    "excludeStackIdFromLogicalIds": "true",
+    "allowSepCharsInLogicalIds": "true"
+  }
+}

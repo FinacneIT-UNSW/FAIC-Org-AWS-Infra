@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[requires]
+python_version = "3"
+
+[packages]
+cdktf = "~=0.13.0"
+pytest = "*"
+cdktf-cdktf-provider-aws = "*"
+
+[dev-packages]
+black = "*"
+pylint = "*"
+flake8 = "*"
+bandit = "*"
+
+[pipenv]
+allow_prereleases = true
