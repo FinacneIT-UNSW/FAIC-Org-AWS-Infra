@@ -25,13 +25,25 @@ class DataLake(Construct):
         self.scope = scope
         super().__init__(scope, id)
 
+        """Datalake
+        
+        Resources:
+        ----------
+            S3Buckets: holds data
+            IamPolicy: grants CRUD access
+        """
+
+        # Bronze bucket for 'raw' data
         bronze_bucket = S3Bucket(
             self, "bucket", bucket=f"unsw-cse-bronze-lake", tags=tags
         )
+
+        # Silver Bucket for 'processed' data
         silver_bucket = S3Bucket(
             self, "silver", bucket=f"unsw-cse-silver-lake", tags=tags
         )
 
+        # CRUD Policy to datalake
         policies_crud = IamPolicy(
             self,
             "crud",
@@ -60,6 +72,19 @@ class DataLake(Construct):
             tags=tags,
         )
 
+        """Datalake API
+        
+        Resources:
+        ----------
+            ApiGatewayRestApi: The API garetway
+            ApiGatewayResource: The paths of the API (/a/b/c etc.)
+            ApiGatewayDeployment: The deployement of the API (making it accessible)
+            ApiGatewayStage: A version of the api (v1)
+            ApiGatewayUsagePlan: Limitation on API usage
+            ApiGatewayApiKey: Access Key
+            ApiGatewayUsagePlanKey: link key to usage plan
+            DatalakeEndpoint: Set of resources to configure endpoints of the API (GET, PUT etc.)
+        """
         api = ApiGatewayRestApi(
             self,
             "api",
@@ -148,8 +173,8 @@ class DataLake(Construct):
             api=api,
             policy=policies_crud,
             resource=resource,
-            file_name="/root/unsw/cse-infra-v2/src/datalake_api/code/put_table.zip",
-            handler="put_table.handler",
+            file_name="/root/unsw/cse-infra-v2/src/code/archived/datalake_put.zip",
+            handler="datalake_put.handler",
             tags=tags,
         )
 
@@ -160,14 +185,14 @@ class DataLake(Construct):
             api=api,
             policy=policies_crud,
             resource=resource,
-            file_name="/root/unsw/cse-infra-v2/src/datalake_api/code/get_table.zip",
-            handler="get_table.handler",
+            file_name="/root/unsw/cse-infra-v2/src/code/archived/datalake_get.zip",
+            handler="datalake_get.handler",
             tags=tags,
         )
 
-        TerraformOutput(self, "api_endpoint", value=stage.invoke_url)
-        TerraformOutput(self, "api_key_name", value=key.name)
-        TerraformOutput(self, "api_key_value", value=key.value, sensitive=True)
+        TerraformOutput(self, "datalake_api_endpoint", value=stage.invoke_url)
+        TerraformOutput(self, "datalake_api_key_name", value=key.name)
+        TerraformOutput(self, "datalake_api_key_value", value=key.value, sensitive=True)
 
 
 class DatalakeEndpoint(Construct):
@@ -184,6 +209,18 @@ class DatalakeEndpoint(Construct):
         tags: dict,
     ):
         super().__init__(scope, id)
+
+        """Resources for endpoints
+        
+        Resources:
+        ----------
+            ApiGatewayMethod: GET, PUT, POST...
+            IamRole: Role for the lambda (Crud on datalake, loging etc.)
+            LambdaFunction: Lambda function handling the endpoint
+            LambdaPermission: Allow lambda to be executed by the API
+            ApiGatewayIntegration: Integration between API endpoint and lambda
+            CloudwatchLogGroup: Logs
+        """
 
         endpoint_method = ApiGatewayMethod(
             self,

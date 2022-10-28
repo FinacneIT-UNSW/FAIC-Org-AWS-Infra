@@ -1,5 +1,5 @@
-FUNCTIONS_PATH = ./src/datalake_api/code
-ZIP_PATH = ./src/datalake_api/code
+FUNCTIONS_PATH = ./src/code
+ZIP_PATH = ./src/code/archived
 
 all: zip_lambdas deploy
 
