@@ -8,7 +8,7 @@ This is it's global aws infrastrucure (Datalake etc.). It must not be deployed m
 
 The state of the terraform configuration is saved to an S3 bucket.
 
-<span style="color:red">**DO NOT CHANGE THE S3BACKEND CONFIGUARTION!**</span>
+<span style="color:red">⚠️🔴**DO NOT CHANGE THE S3BACKEND CONFIGUARTION!**🔴⚠️</span>
 you will most likely destroy the infrastructure and lost some data...
 
 ## How to use?
@@ -42,4 +42,4 @@ Few considerations when it comes to modifying the stack.
 4. One module = one functionality (exemple: datalake, docker orchestration, sagemaker env etc.), do not split resources belongings to same functionality (Datalake API go with the actual Datalake definition)
 
 
-<span style="color:red">**There is no ctrl-z in terraform and AWS**</span>
+<span style="color:red">⚠️🔴**There is no ctrl-z in terraform and AWS**🔴⚠️</span>
