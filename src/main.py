@@ -6,6 +6,7 @@ from cdktf_cdktf_provider_aws.provider import AwsProvider
 
 from src.datalake import DataLake
 from src.policies import LambdaPolicies
+from src.sandbox_ec2 import SandboxEC2
 
 
 class FAICInfra(TerraformStack):
@@ -20,7 +21,7 @@ class FAICInfra(TerraformStack):
         # AWS Provider
         AwsProvider(self, "AWS", region="ap-southeast-2")
 
-        # Bckend for storing state
+        # Backend for storing state
         S3Backend(
             self,
             bucket="terraform-backend-faic-infra",
@@ -32,6 +33,8 @@ class FAICInfra(TerraformStack):
         self.policies = LambdaPolicies(self, "policies", tags=tags)
         # The Datalake with its rest api
         DataLake(self, "datalake", tags=tags)
+        # Sandbox EC2
+        SandboxEC2(self, "sandbox", tags=tags)
 
 
 app = App()

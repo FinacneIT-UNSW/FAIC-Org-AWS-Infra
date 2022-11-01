@@ -22,19 +22,29 @@ def handler(event, context):
     try:
         LOGGER.info(f"Received event: {event}")
 
-        layer = event["pathParameters"]["layer"]
-        source_type = event["pathParameters"]["source_type"]
-        source_name = event["pathParameters"]["source_name"]
-        ymd = event["pathParameters"]["ymd"]
-        table = event["pathParameters"]["table"]
+        layer = event["pathParameters"]["layer"].lower()
+        source_type = event["pathParameters"]["source_type"].lower()
+        source_name = event["pathParameters"]["source_name"].lower()
+        ymd = event["pathParameters"]["ymd"].lower()
+        table = event["pathParameters"]["table"].lower()
 
         TABLE_NAME = r"^(\w+\.)((csv)|(json)){1}$"
         table_name = re.search(TABLE_NAME, table)
 
+        if layer not in ("bronze", "silver"):
+            return {
+                "statusCode": 400,
+                "body": '{"status":"Invalid layer name. Available layers: bronze, silver"}',
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                },
+            }
+
         if table_name is None:
             return {
                 "statusCode": 400,
-                "body": '{"status":"Invalid table name"}',
+                "body": '{"status":"Invalid table name. Table name must match ^(\w+\.)((csv)|(json)){1}$"}',
                 "headers": {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",

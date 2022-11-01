@@ -251,6 +251,7 @@ class DatalakeEndpoint(Construct):
             filename=file_name,
             function_name=f"{http}Datalake-Function",
             role=lambdas_role.arn,
+            source_code_hash="1",
             handler=handler,
             runtime="python3.9",
             memory_size=512,
