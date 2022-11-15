@@ -43,6 +43,9 @@ class DataLake(Construct):
             self, "silver", bucket=f"unsw-cse-silver-lake", tags=tags
         )
 
+        # Model Bucket for model saving
+        model_bucket = S3Bucket(self, "model", bucket=f"unsw-cse-model-repo", tags=tags)
+
         # CRUD Policy to datalake
         policies_crud = IamPolicy(
             self,
@@ -64,6 +67,32 @@ class DataLake(Construct):
                                 f"{bronze_bucket.arn}/*",
                                 f"{silver_bucket.arn}/*",
                             ],
+                            "Effect": "Allow",
+                        }
+                    ],
+                }
+            ),
+            tags=tags,
+        )
+
+        # CRUD Policy to datalake
+        model_crud = IamPolicy(
+            self,
+            "crud-model",
+            name=f"S3-CRUD-unsw-cse-model-repo",
+            policy=json.dumps(
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Action": [
+                                "s3:PutObject",
+                                "s3:PutObjectAcl",
+                                "s3:GetObject",
+                                "s3:GetObjectAcl",
+                                "s3:DeleteObject",
+                            ],
+                            "Resource": [f"{model_bucket.arn}/*"],
                             "Effect": "Allow",
                         }
                     ],
@@ -100,6 +129,30 @@ class DataLake(Construct):
             "layer",
             path_part="{layer}",
             parent_id=api.root_resource_id,
+            rest_api_id=api.id,
+        )
+
+        model_layer = ApiGatewayResource(
+            self,
+            "model-layer",
+            path_part="model",
+            parent_id=api.root_resource_id,
+            rest_api_id=api.id,
+        )
+
+        model_name_resource = ApiGatewayResource(
+            self,
+            "model-name-layer",
+            path_part="{model_name}",
+            parent_id=model_layer.id,
+            rest_api_id=api.id,
+        )
+
+        model_version_resource = ApiGatewayResource(
+            self,
+            "model-version-layer",
+            path_part="{model_version}",
+            parent_id=model_name_resource.id,
             rest_api_id=api.id,
         )
 
@@ -190,6 +243,30 @@ class DataLake(Construct):
             tags=tags,
         )
 
+        put_model = DatalakeEndpoint(
+            self,
+            "put-model",
+            http="PUT",
+            api=api,
+            policy=model_crud,
+            resource=model_version_resource,
+            file_name="/root/unsw/cse-infra-v2/src/code/archived/model_put.zip",
+            handler="model_put.handler",
+            tags=tags,
+        )
+
+        """ get_model = DatalakeEndpoint(
+            self,
+            "get-model",
+            http="GET",
+            api=api,
+            policy=model_crud,
+            resource=model_name_resource,
+            file_name="/root/unsw/cse-infra-v2/src/code/archived/model_get.zip",
+            handler="model_get.handler",
+            tags=tags,
+        ) """
+
         TerraformOutput(self, "datalake_api_endpoint", value=stage.invoke_url)
         TerraformOutput(self, "datalake_api_key_name", value=key.name)
         TerraformOutput(self, "datalake_api_key_value", value=key.value, sensitive=True)
@@ -235,7 +312,7 @@ class DatalakeEndpoint(Construct):
         lambdas_role = IamRole(
             self,
             "role",
-            name=f"{http}Datalake",
+            name=f"{id}Datalake",
             assume_role_policy=scope.scope.policies.assume.json,
             managed_policy_arns=[
                 scope.scope.policies.logging.arn,
@@ -249,7 +326,7 @@ class DatalakeEndpoint(Construct):
             self,
             "lambda",
             filename=file_name,
-            function_name=f"{http}Datalake-Function",
+            function_name=f"infra-{id}Datalake",
             role=lambdas_role.arn,
             source_code_hash="1",
             handler=handler,
