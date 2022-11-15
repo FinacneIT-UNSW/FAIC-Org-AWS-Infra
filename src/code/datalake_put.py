@@ -44,7 +44,7 @@ def handler(event, context):
         if table_name is None:
             return {
                 "statusCode": 400,
-                "body": '{"status":"Invalid table name. Table name must match ^(\w+\.)((csv)|(json)){1}$"}',
+                "body": '{"status":"Invalid table name."}',
                 "headers": {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
