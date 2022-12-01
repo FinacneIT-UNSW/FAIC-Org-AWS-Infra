@@ -312,7 +312,7 @@ class DatalakeEndpoint(Construct):
         lambdas_role = IamRole(
             self,
             "role",
-            name=f"{id}Datalake",
+            name=f"datalake-lambda-{id}-role",
             assume_role_policy=scope.scope.policies.assume.json,
             managed_policy_arns=[
                 scope.scope.policies.logging.arn,
@@ -326,7 +326,7 @@ class DatalakeEndpoint(Construct):
             self,
             "lambda",
             filename=file_name,
-            function_name=f"infra-{id}Datalake",
+            function_name=f"datalake-{id}-{tags['env']}",
             role=lambdas_role.arn,
             source_code_hash="1",
             handler=handler,
