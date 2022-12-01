@@ -119,7 +119,8 @@ class SandboxEC2(Construct):
         instance = Instance(
             self,
             "ec2",
-            ami=ami.id,
+            # ami=ami.id,
+            ami="ami-064c4502381c426f4",
             instance_type="t3.micro",
             root_block_device=dict(volume_size=8),
             vpc_security_group_ids=[sg.id],
