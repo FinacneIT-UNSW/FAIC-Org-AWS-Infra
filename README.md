@@ -19,11 +19,13 @@ Please, learn how to use terraform and how AWS works before doing anything...
 
 2. Modify the infrastructure definition.
 
-3. run `make` in the console. **Double check the terraform plan** before accepting the changes.
+3. run `pipenv install`
+
+4. run `make` in the console. **Double check the terraform plan** before accepting the changes.
 
     3.1 Depending on your os, you might need to run `pipenv shell`
 
-4. Check the outputs.json file to find API url and API keys.
+5. Check the outputs.json file to find API url and API keys.
 
 ## Commands
 
